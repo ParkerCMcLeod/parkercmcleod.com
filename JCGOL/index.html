@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Conway's Game of Life</title>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+
+      // Set canvas size (based on default terminal size in ubuntu)
+      const canvas = document.getElementById("canvas");
+      canvas.width = 800; 
+      canvas.height = 240;
+
+      // Set cell size and color
+      const cellSize = 10;
+      const aliveColor = "#E95420";
+      const deadColor = "#77216F";
+
+      // Initialize the grid
+      const numRows = Math.floor(canvas.height / cellSize);
+      const numCols = Math.floor(canvas.width / cellSize);
+      let grid = new Array(numRows);
+      for (let i = 0; i < numRows; i++) {
+        grid[i] = new Array(numCols).fill(false);
+      }
+
+      // Helper function to draw a cell on the canvas
+      function drawCell(x, y, isAlive) {
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = isAlive ? aliveColor : deadColor;
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
+
+      // Randomly populate the grid
+      for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+          grid[i][j] = Math.random() < 0.5;
+          drawCell(j, i, grid[i][j]);
+        }
+      }
+
+      // Update the grid every second
+      setInterval(update, 1000);
+
+      // Helper function to count the number of living neighbors
+      function countNeighbors(row, col) {
+        let count = 0;
+        for (let i = row - 1; i <= row + 1; i++) {
+          for (let j = col - 1; j <= col + 1; j++) {
+            if (i === row && j === col) {
+              continue;
+            }
+            if (i >= 0 && i < numRows && j >= 0 && j < numCols && grid[i][j]) {
+              count++;
+            }
+          }
+        }
+        return count;
+      }
+
+      // Helper function to update the grid
+      function update() {
+        let newGrid = new Array(numRows);
+        for (let i = 0; i < numRows; i++) {
+          newGrid[i] = new Array(numCols);
+          for (let j = 0; j < numCols; j++) {
+            const neighbors = countNeighbors(i, j);
+            if (grid[i][j]) {
+              newGrid[i][j] = neighbors === 2 || neighbors === 3;
+            } else {
+              newGrid[i][j] = neighbors === 3;
+            }
+            drawCell(j, i, newGrid[i][j]);
+          }
+        }
+        grid = newGrid;
+      }
+    </script>
+  </body>
+</html>
